@@ -6,40 +6,37 @@ import django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'db_fa.settings')
 django.setup()
 
-from core.models import Product
+from core.models import ProductType
 
 def import_csv_data(csv_file_path):
     """
-    Import data from CSV file to Product model
+    Import product types from CSV file
     """
-    # Delete all existing products
-    Product.objects.all().delete()
+    # Delete all existing product types
+    ProductType.objects.all().delete()
     
     # Import from CSV
     with open(csv_file_path, 'r', encoding='utf-8') as f:
         csv_reader = csv.DictReader(f)
         for row in csv_reader:
             try:
-                # Convert empty strings to None
-                base_weight = float(row['وزن پایه ']) if row['وزن پایه '].strip() else None
-                waste = float(row['دور ریز ']) if row['دور ریز '].strip() else None
-                net_weight = float(row['وزن خالص']) if row['وزن خالص'].strip() else None
-                base_price = float(row['قیمت محصول بر پایه وزن پایه ']) if row['قیمت محصول بر پایه وزن پایه '].strip() else None
-                real_price = float(row['قیمت حقیقی ']) if row['قیمت حقیقی '].strip() else None
-                
-                Product.objects.create(
-                    product_type=row['نوع'],
-                    base_weight=base_weight,
-                    waste=waste,
-                    net_weight=net_weight,
-                    base_price=base_price,
-                    real_price=real_price
-                )
-                print(f"ثبت محصول: {row['نوع']}")
+                # Check if row has a product type and it's not empty
+                if 'نوع' in row and row['نوع'].strip():
+                    # Convert empty strings to None or 0
+                    base_weight = float(row['وزن پایه '].strip()) if row['وزن پایه '].strip() else 0
+                    waste = float(row['دور ریز '].strip()) if row['دور ریز '].strip() else 0
+                    
+                    # Create the product type
+                    ProductType.objects.create(
+                        name=row['نوع'],
+                        base_weight=base_weight,
+                        waste=waste
+                    )
+                    print(f"نوع محصول ثبت شد: {row['نوع']}")
             except Exception as e:
-                print(f"خطا در ثبت محصول {row['نوع']}: {str(e)}")
+                print(f"خطا در ثبت نوع محصول {row.get('نوع', 'نامشخص')}: {str(e)}")
 
 if __name__ == "__main__":
     csv_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'test.csv')
     import_csv_data(csv_file_path)
-    print("عملیات وارد کردن داده‌ها به پایان رسید.") 
+    print("عملیات وارد کردن انواع محصول به پایان رسید.") 

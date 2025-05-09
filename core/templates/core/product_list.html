@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لیست محصولات</title>
+    <title>مدیریت محصولات</title>
     <style>
         body {
             font-family: Tahoma, Arial, sans-serif;
@@ -13,7 +13,7 @@
             padding: 20px;
             background-color: #f5f5f5;
         }
-        h1 {
+        h1, h2 {
             color: #333;
             text-align: center;
         }
@@ -36,38 +36,154 @@
         tr:hover {
             background-color: #f5f5f5;
         }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-control {
+            width: 100%;
+            padding: 8px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            color: white;
+        }
+        .btn-primary {
+            background-color: #4CAF50;
+        }
+        .btn-primary:hover {
+            background-color: #45a049;
+        }
+        .alert {
+            padding: 10px 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .alert-success {
+            background-color: #dff0d8;
+            border-color: #d6e9c6;
+            color: #3c763d;
+        }
     </style>
 </head>
 <body>
-    <h1>لیست محصولات</h1>
-    
-    <table>
-        <thead>
-            <tr>
-                <th>نوع</th>
-                <th>وزن پایه</th>
-                <th>دور ریز</th>
-                <th>وزن خالص</th>
-                <th>قیمت محصول بر پایه وزن پایه</th>
-                <th>قیمت حقیقی</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for product in products %}
-            <tr>
-                <td>{{ product.product_type }}</td>
-                <td>{{ product.base_weight }}</td>
-                <td>{{ product.waste }}</td>
-                <td>{{ product.net_weight }}</td>
-                <td>{{ product.base_price }}</td>
-                <td>{{ product.real_price }}</td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="6">هیچ محصولی موجود نیست.</td>
-            </tr>
+    <div class="container">
+        <h1>مدیریت محصولات</h1>
+        
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-success">
+                    {{ message }}
+                </div>
             {% endfor %}
-        </tbody>
-    </table>
+        {% endif %}
+        
+        <div class="card">
+            <h2>ثبت محصول جدید</h2>
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="{{ form.product_type.id_for_label }}">نوع محصول:</label>
+                    {{ form.product_type }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.total_weight.id_for_label }}">وزن کل (گرم):</label>
+                    {{ form.total_weight }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.price_per_kilo.id_for_label }}">قیمت هر کیلو:</label>
+                    {{ form.price_per_kilo }}
+                </div>
+                <button type="submit" class="btn btn-primary">ثبت محصول</button>
+            </form>
+        </div>
+        
+        <div class="card">
+            <h2>لیست محصولات</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>نوع محصول</th>
+                        <th>وزن کل (گرم)</th>
+                        <th>وزن دور ریز</th>
+                        <th>وزن خالص</th>
+                        <th>قیمت هر کیلو</th>
+                        <th>قیمت کل</th>
+                        <th>تاریخ ثبت</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in products %}
+                    <tr>
+                        <td>{{ product.product_type.name }}</td>
+                        <td>{{ product.total_weight }}</td>
+                        <td>{{ product.waste_weight|floatformat:1 }}</td>
+                        <td>{{ product.net_weight|floatformat:1 }}</td>
+                        <td>{{ product.price_per_kilo|floatformat:0 }}</td>
+                        <td>{{ product.total_price|floatformat:0 }}</td>
+                        <td>{{ product.created_at|date:"Y/m/d" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7">هیچ محصولی موجود نیست.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="card">
+            <h2>انواع محصولات (ثابت)</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>نام</th>
+                        <th>وزن پایه</th>
+                        <th>دور ریز</th>
+                        <th>نسبت دور ریز</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for type in product_types %}
+                    <tr>
+                        <td>{{ type.name }}</td>
+                        <td>{{ type.base_weight }}</td>
+                        <td>{{ type.waste }}</td>
+                        <td>{{ type.waste_ratio|floatformat:2 }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4">هیچ نوع محصولی موجود نیست.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 </body>
 </html> 
