@@ -291,6 +291,11 @@
             margin-bottom: 1rem;
         }
         
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+        
         .date-cell {
             font-size: 0.9rem;
             color: var(--text-muted);
@@ -365,6 +370,10 @@
             box-shadow: var(--shadow);
         }
         
+        .nav-link-danger {
+            background: var(--gradient-danger);
+        }
+        
         @media (max-width: 768px) {
             .container {
                 padding: 1rem;
@@ -395,8 +404,15 @@
                 align-items: flex-start;
             }
             
-            .header-with-action .nav-link {
-                margin-top: 1rem;
+            .action-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .nav-link {
+                width: 100%;
+                justify-content: center;
+                margin: 0.5rem 0;
             }
         }
     </style>
@@ -406,9 +422,21 @@
         <h1>مدیریت محصولات</h1>
         
         <div class="header-with-action">
-            <a href="{% url 'product_type_list' %}" class="nav-link">
-                <i class="fas fa-list"></i>
-                مشاهده انواع محصولات
+            <div class="action-buttons">
+                <a href="{% url 'dashboard' %}" class="nav-link">
+                    <i class="fas fa-arrow-right"></i>
+                    بازگشت به داشبورد
+                </a>
+                
+                <a href="{% url 'product_type_list' %}" class="nav-link">
+                    <i class="fas fa-list"></i>
+                    مشاهده انواع محصولات
+                </a>
+            </div>
+            
+            <a href="{% url 'logout' %}" class="nav-link nav-link-danger">
+                <i class="fas fa-sign-out-alt"></i>
+                خروج
             </a>
         </div>
         
@@ -422,7 +450,7 @@
         {% endif %}
         
         <div class="card">
-            <h2>ثبت محصول جدید</h2>
+            <h2>ثبت محصول جدید برای {{ request.user.get_full_name }}</h2>
             <form method="post">
                 {% csrf_token %}
                 <div class="form-grid">
@@ -447,7 +475,7 @@
         </div>
         
         <div class="card">
-            <h2>لیست محصولات</h2>
+            <h2>لیست محصولات شما</h2>
             <div class="responsive-table">
                 <table>
                     <thead>

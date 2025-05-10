@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 # Create your models here.
 class Category(models.Model):
@@ -44,6 +45,7 @@ class ProductInstance(models.Model):
     net_weight = models.FloatField(null=True, blank=True, verbose_name="وزن خالص")
     total_price = models.FloatField(null=True, blank=True, verbose_name="قیمت کل")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="تاریخ ایجاد")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='products', verbose_name='کاربر', null=True)
     
     def save(self, *args, **kwargs):
         # محاسبه وزن دور ریز بر اساس نسبت دور ریز نوع محصول
