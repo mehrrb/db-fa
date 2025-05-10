@@ -24,6 +24,21 @@ class Command(BaseCommand):
         # Import from CSV
         self.stdout.write(self.style.SUCCESS(f"شروع واردات از فایل: {csv_file_path}"))
         
+        # Dictionary mapping category names to default units
+        category_to_unit = {
+            'پروتیئن': ProductType.UNIT_GRAM,
+            'راسته گوساله': ProductType.UNIT_GRAM,
+            'فیله گوساله': ProductType.UNIT_GRAM,
+            'سبزیجات': ProductType.UNIT_GRAM,
+            'کاهو': ProductType.UNIT_GRAM,
+            'گوجه فرنگی': ProductType.UNIT_GRAM,
+            'خیار': ProductType.UNIT_GRAM,
+            'نوشیدنی': ProductType.UNIT_PIECE,  # Default for drinks is piece/unit
+            'آب پرتقال': ProductType.UNIT_PIECE,
+            'نوشابه': ProductType.UNIT_PIECE,
+            'آب معدنی': ProductType.UNIT_PIECE,
+        }
+        
         with open(csv_file_path, 'r', encoding='utf-8') as f:
             csv_reader = csv.reader(f)
             # Skip header row
@@ -44,6 +59,9 @@ class Command(BaseCommand):
                 base_weight_str = row[1].strip() if len(row) > 1 else ""
                 waste_str = row[2].strip() if len(row) > 2 else ""
                 
+                # Try to get the unit from the CSV file (column 4 if exists)
+                unit_str = row[3].strip() if len(row) > 3 and row[3].strip() else None
+                
                 try:
                     # Check if this is a category row (no values in other columns)
                     if base_weight_str == "" and waste_str == "":
@@ -61,25 +79,30 @@ class Command(BaseCommand):
                                 base_weight = float(base_weight_str) if base_weight_str else 0
                                 waste = float(waste_str) if waste_str else 0
                                 
+                                # Determine the unit
+                                unit = unit_str if unit_str else category_to_unit.get(product_name, category_to_unit.get(current_category.name if current_category else '', ProductType.UNIT_GRAM))
+                                
                                 # Check if product already exists
                                 try:
                                     product = ProductType.objects.get(name=product_name)
                                     product.base_weight = base_weight
                                     product.waste = waste
+                                    product.unit = unit
                                     if current_category:
                                         product.category = current_category
                                     product.save()
                                     products_updated += 1
-                                    self.stdout.write(f"نوع محصول به‌روزرسانی شد: {product_name}")
+                                    self.stdout.write(f"نوع محصول به‌روزرسانی شد: {product_name} (واحد: {product.get_unit_display()})")
                                 except ProductType.DoesNotExist:
                                     ProductType.objects.create(
                                         name=product_name,
                                         base_weight=base_weight,
                                         waste=waste,
-                                        category=current_category
+                                        category=current_category,
+                                        unit=unit
                                     )
                                     products_added += 1
-                                    self.stdout.write(f"نوع محصول ایجاد شد: {product_name}")
+                                    self.stdout.write(f"نوع محصول ایجاد شد: {product_name} (واحد: {dict(ProductType.UNIT_CHOICES).get(unit)})")
                             except ValueError as e:
                                 self.stdout.write(self.style.ERROR(f"خطا در تبدیل مقادیر عددی برای محصول {product_name}: {str(e)}"))
                 except Exception as e:

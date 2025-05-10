@@ -15,10 +15,24 @@ class Category(models.Model):
 
 class ProductType(models.Model):
     """مدل برای نگهداری انواع محصولات با مقادیر ثابت"""
+    # انواع واحدهای اندازه‌گیری
+    UNIT_GRAM = 'gram'
+    UNIT_PIECE = 'piece'
+    UNIT_LITER = 'liter'
+    UNIT_METER = 'meter'
+    
+    UNIT_CHOICES = [
+        (UNIT_GRAM, 'گرم'),
+        (UNIT_PIECE, 'عدد'),
+        (UNIT_LITER, 'لیتر'),
+        (UNIT_METER, 'متر'),
+    ]
+    
     name = models.CharField(max_length=100, verbose_name="نوع محصول")
     base_weight = models.FloatField(verbose_name="وزن پایه")
     waste = models.FloatField(verbose_name="دور ریز")
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='product_types', null=True, blank=True, verbose_name="دسته‌بندی")
+    unit = models.CharField(max_length=10, choices=UNIT_CHOICES, default=UNIT_GRAM, verbose_name="واحد")
     
     # نسبت دور ریز به وزن پایه
     @property
@@ -37,8 +51,23 @@ class ProductType(models.Model):
 class ProductInstance(models.Model):
     """نمونه محصول با قیمت و مقادیر محاسبه شده"""
     product_type = models.ForeignKey(ProductType, on_delete=models.CASCADE, verbose_name="نوع محصول")
-    total_weight = models.FloatField(default=1000, verbose_name="وزن کل (گرم)")
-    price_per_kilo = models.FloatField(default=10000, verbose_name="قیمت هر کیلو")
+    total_weight = models.FloatField(default=1000, verbose_name="مقدار")
+    price_per_kilo = models.FloatField(default=10000, verbose_name="قیمت هر واحد")
+    
+    # افزودن فیلد واحد - کاربر می‌تواند واحد را خودش انتخاب کند
+    UNIT_GRAM = 'gram'
+    UNIT_PIECE = 'piece'
+    UNIT_LITER = 'liter'
+    UNIT_METER = 'meter'
+    
+    UNIT_CHOICES = [
+        (UNIT_GRAM, 'گرم'),
+        (UNIT_PIECE, 'عدد'),
+        (UNIT_LITER, 'لیتر'),
+        (UNIT_METER, 'متر'),
+    ]
+    
+    unit = models.CharField(max_length=10, choices=UNIT_CHOICES, default=UNIT_GRAM, verbose_name="واحد")
     
     # مقادیر محاسبه شده
     waste_weight = models.FloatField(null=True, blank=True, verbose_name="وزن دور ریز")
