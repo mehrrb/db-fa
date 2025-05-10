@@ -5,18 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>انواع محصولات</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #2ecc71;
-            --primary-dark: #27ae60;
-            --secondary: #3498db;
-            --text-dark: #2c3e50;
-            --text-light: #ecf0f1;
-            --background: #f9f9f9;
+            --primary: #5e72e4;
+            --primary-light: #7795f8;
+            --primary-dark: #324cdd;
+            --secondary: #f7fafc;
+            --success: #2dce89;
+            --success-light: #4be3a9;
+            --info: #11cdef;
+            --info-light: #41e7ff;
+            --warning: #fb6340;
+            --warning-light: #ffa375;
+            --danger: #f5365c;
+            --danger-light: #ff6b8a;
+            --text-dark: #32325d;
+            --text-light: #ffffff;
+            --text-muted: #8898aa;
+            --background: #f8f9fe;
             --card-bg: #ffffff;
             --border-radius: 12px;
-            --shadow: 0 5px 15px rgba(0,0,0,0.08);
+            --shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 15px 35px rgba(50, 50, 93, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
             --transition: all 0.3s ease;
+            --gradient-primary: linear-gradient(87deg, #5e72e4 0, #825ee4 100%);
+            --gradient-success: linear-gradient(87deg, #2dce89 0, #2dcca7 100%);
+            --gradient-info: linear-gradient(87deg, #11cdef 0, #1171ef 100%);
+            --gradient-warning: linear-gradient(87deg, #fb6340 0, #fbb140 100%);
+            --gradient-danger: linear-gradient(87deg, #f5365c 0, #f56036 100%);
         }
         
         * {
@@ -26,25 +43,32 @@
         }
         
         body {
-            font-family: Tahoma, Arial, sans-serif;
+            font-family: 'Vazirmatn', Tahoma, Arial, sans-serif;
             direction: rtl;
             text-align: right;
             color: var(--text-dark);
             background-color: var(--background);
             line-height: 1.6;
+            background-image: linear-gradient(180deg, #5e72e420 0%, #f8f9fe 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
         }
         
         h1, h2 {
             color: var(--text-dark);
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
             text-align: center;
         }
         
         h1 {
-            font-size: 2.2rem;
+            font-size: 2.5rem;
             margin-top: 2rem;
             position: relative;
-            padding-bottom: 0.5rem;
+            padding-bottom: 1rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
         }
         
         h1:after {
@@ -53,18 +77,19 @@
             bottom: 0;
             left: 50%;
             transform: translateX(-50%);
-            width: 80px;
+            width: 100px;
             height: 4px;
-            background-color: var(--primary);
-            border-radius: 2px;
+            background: var(--gradient-primary);
+            border-radius: 4px;
         }
         
         h2 {
-            font-size: 1.5rem;
+            font-size: 1.8rem;
             color: var(--text-dark);
             position: relative;
             padding-bottom: 0.5rem;
             margin-bottom: 1.5rem;
+            font-weight: 600;
         }
         
         h2:after {
@@ -74,7 +99,7 @@
             right: 0;
             width: 60px;
             height: 3px;
-            background-color: var(--primary);
+            background: var(--gradient-info);
             border-radius: 2px;
         }
         
@@ -91,11 +116,11 @@
         th, td {
             padding: 15px;
             text-align: right;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid rgba(136, 152, 170, 0.1);
         }
         
         th {
-            background-color: var(--primary);
+            background: var(--gradient-primary);
             color: var(--text-light);
             font-weight: 600;
             text-transform: uppercase;
@@ -103,8 +128,14 @@
             letter-spacing: 0.5px;
         }
         
+        tbody tr {
+            transition: var(--transition);
+        }
+        
         tbody tr:hover {
-            background-color: rgba(46, 204, 113, 0.05);
+            background-color: rgba(94, 114, 228, 0.05);
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(50, 50, 93, 0.1);
         }
         
         tbody tr:last-child td {
@@ -124,10 +155,11 @@
             padding: 2rem;
             margin-bottom: 2rem;
             transition: var(--transition);
+            border-top: 3px solid var(--info);
         }
         
         .card:hover {
-            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+            box-shadow: var(--shadow-lg);
             transform: translateY(-5px);
         }
         
@@ -136,18 +168,18 @@
             align-items: center;
             margin: 1rem 0;
             padding: 10px 20px;
-            background-color: var(--primary);
+            background: var(--gradient-info);
             color: white;
             text-decoration: none;
-            border-radius: 6px;
+            border-radius: 8px;
             font-weight: 600;
             transition: var(--transition);
+            box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
         }
         
         .nav-link:hover {
-            background-color: var(--primary-dark);
             transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(39, 174, 96, 0.3);
+            box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
         }
         
         .nav-link i {
@@ -155,50 +187,61 @@
         }
         
         .category-header {
-            background-color: rgba(46, 204, 113, 0.1);
-            padding: 12px 15px;
+            background: linear-gradient(to right, rgba(17, 205, 239, 0.05) 0%, rgba(17, 113, 239, 0.05) 100%);
+            padding: 15px 20px;
             margin-top: 30px;
-            border-radius: 8px;
+            border-radius: 10px;
             font-weight: 600;
-            color: var(--primary-dark);
+            color: var(--primary);
             display: flex;
             align-items: center;
-            border-right: 4px solid var(--primary);
+            border-right: 4px solid var(--info);
+            box-shadow: 0 2px 5px rgba(50, 50, 93, 0.08);
+            transform: translateZ(0);
+            transition: all 0.3s;
+        }
+        
+        .category-header:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
         }
         
         .category-header i {
-            margin-left: 8px;
+            margin-left: 12px;
+            color: var(--info);
+            font-size: 1.2rem;
         }
         
         .alert {
             padding: 15px;
-            border-radius: 6px;
+            border-radius: 10px;
             margin-bottom: 20px;
             position: relative;
-            animation: fadeIn 0.5s ease-out;
+            animation: fadeInUp 0.5s ease-out;
+            box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
         }
         
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
         
         .alert-success {
-            background-color: rgba(46, 204, 113, 0.15);
-            border-right: 4px solid var(--primary);
-            color: #27ae60;
+            background: linear-gradient(87deg, rgba(45, 206, 137, 0.1) 0, rgba(45, 204, 167, 0.1) 100%);
+            border-right: 4px solid var(--success);
+            color: var(--success);
         }
         
         .alert-danger {
-            background-color: rgba(231, 76, 60, 0.15);
-            border-right: 4px solid #e74c3c;
-            color: #c0392b;
+            background: linear-gradient(87deg, rgba(245, 54, 92, 0.1) 0, rgba(245, 96, 54, 0.1) 100%);
+            border-right: 4px solid var(--danger);
+            color: var(--danger);
         }
         
         .empty-state {
             text-align: center;
             padding: 2rem;
-            color: #7f8c8d;
+            color: var(--text-muted);
         }
         
         .header-with-action {
@@ -211,13 +254,37 @@
         .info-text {
             text-align: center;
             margin: 1.5rem 0;
-            color: #7f8c8d;
+            padding: 15px;
+            color: var(--text-muted);
             font-style: italic;
             animation: fadeIn 1s ease-out;
+            background: linear-gradient(to right, rgba(94, 114, 228, 0.03) 0%, rgba(130, 94, 228, 0.03) 100%);
+            border-radius: 8px;
+            border-right: 3px solid var(--primary-light);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
         
         .responsive-table {
             overflow-x: auto;
+            border-radius: var(--border-radius);
+            background-color: white;
+            box-shadow: var(--shadow);
+            margin-bottom: 1.5rem;
+        }
+        
+        .product-item {
+            display: flex;
+            align-items: center;
+        }
+        
+        .product-item i {
+            color: var(--primary);
+            margin-left: 10px;
+            font-size: 0.9rem;
         }
         
         @media (max-width: 768px) {
@@ -234,7 +301,7 @@
             }
             
             h2 {
-                font-size: 1.3rem;
+                font-size: 1.5rem;
             }
             
             th, td {
@@ -290,7 +357,7 @@
                     </div>
                 {% else %}
                     <div class="category-header">
-                        <i class="fas fa-tag"></i>
+                        <i class="fas fa-layer-group"></i>
                         بدون دسته‌بندی
                     </div>
                 {% endif %}
@@ -304,7 +371,12 @@
                         <tbody>
                             {% for type in category.list %}
                             <tr>
-                                <td>{{ type.name }}</td>
+                                <td>
+                                    <div class="product-item">
+                                        <i class="fas fa-cube"></i>
+                                        {{ type.name }}
+                                    </div>
+                                </td>
                             </tr>
                             {% empty %}
                             <tr>
@@ -328,7 +400,12 @@
                         <tbody>
                             {% for type in product_types %}
                             <tr>
-                                <td>{{ type.name }}</td>
+                                <td>
+                                    <div class="product-item">
+                                        <i class="fas fa-cube"></i>
+                                        {{ type.name }}
+                                    </div>
+                                </td>
                             </tr>
                             {% empty %}
                             <tr>
