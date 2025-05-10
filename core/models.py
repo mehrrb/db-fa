@@ -1,11 +1,23 @@
 from django.db import models
 
 # Create your models here.
+class Category(models.Model):
+    """مدل برای دسته‌بندی انواع محصولات"""
+    name = models.CharField(max_length=100, verbose_name="نام دسته‌بندی")
+    
+    def __str__(self):
+        return self.name
+    
+    class Meta:
+        verbose_name = "دسته‌بندی"
+        verbose_name_plural = "دسته‌بندی‌ها"
+
 class ProductType(models.Model):
     """مدل برای نگهداری انواع محصولات با مقادیر ثابت"""
     name = models.CharField(max_length=100, verbose_name="نوع محصول")
     base_weight = models.FloatField(verbose_name="وزن پایه")
     waste = models.FloatField(verbose_name="دور ریز")
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='product_types', null=True, blank=True, verbose_name="دسته‌بندی")
     
     # نسبت دور ریز به وزن پایه
     @property
@@ -41,8 +53,14 @@ class ProductInstance(models.Model):
         # محاسبه وزن خالص
         self.net_weight = self.total_weight - self.waste_weight
         
-        # محاسبه قیمت کل (قیمت هر کیلو * وزن کل به کیلوگرم)
-        self.total_price = (self.price_per_kilo * self.total_weight) / 1000  # تبدیل گرم به کیلوگرم
+        # محاسبه قیمت کل با در نظر گرفتن دور ریز
+        # محاسبه قیمت بر اساس وزن کل
+        self.total_price = (self.price_per_kilo * self.total_weight) / 1000
+        
+        # قیمت اضافی بابت دور ریز
+        # این بخش باعث می‌شود قیمت کل با توجه به دور ریز افزایش یابد
+        waste_cost = (self.price_per_kilo * self.waste_weight) / 1000
+        self.total_price += waste_cost
             
         super().save(*args, **kwargs)
     

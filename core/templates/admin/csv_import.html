@@ -1,0 +1,33 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+{% block content %}
+<div style="text-align: center; direction: rtl; font-family: Tahoma, Arial, sans-serif;">
+    <h1>وارد کردن انواع محصولات از فایل CSV</h1>
+    
+    <div style="margin: 20px auto; max-width: 500px; text-align: right;">
+        <p>فرمت فایل CSV باید به صورت زیر باشد:</p>
+        <pre style="text-align: right; direction: ltr; padding: 10px; background-color: #f5f5f5; margin: 10px 0;">
+نام محصول,وزن پایه,دور ریز
+دسته‌بندی,,
+محصول 1,1000,100
+محصول 2,500,50
+دسته‌بندی دیگر,,
+محصول 3,800,80
+        </pre>
+        <p>در هر خطی که ستون‌های دوم و سوم خالی باشند، متن ستون اول به عنوان دسته‌بندی جدید در نظر گرفته می‌شود.</p>
+        
+        <form action="" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div style="margin: 20px 0;">
+                {{ form.as_p }}
+            </div>
+            <button type="submit" style="background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer;">وارد کردن فایل</button>
+        </form>
+        
+        <p style="margin-top: 30px;">
+            <a href="{% url 'admin:core_producttype_changelist' %}" style="color: #1976D2; text-decoration: none;">بازگشت به لیست انواع محصولات</a>
+        </p>
+    </div>
+</div>
+{% endblock %} 

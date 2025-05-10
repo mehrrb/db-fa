@@ -1,8 +1,8 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.contrib import messages
 from django import forms
-from .models import ProductType, ProductInstance
+from .models import ProductType, ProductInstance, Category
 
 # فرم ایجاد محصول جدید
 class ProductInstanceForm(forms.ModelForm):
@@ -19,7 +19,6 @@ class ProductInstanceForm(forms.ModelForm):
 # Create your views here.
 def product_list(request):
     products = ProductInstance.objects.all().select_related('product_type')
-    product_types = ProductType.objects.all()
     
     # اگر درخواست POST است، یعنی فرم ارسال شده است
     if request.method == 'POST':
@@ -33,13 +32,14 @@ def product_list(request):
     
     return render(request, 'core/product_list.html', {
         'products': products,
-        'product_types': product_types,
         'form': form
     })
 
 class ProductTypeListView(View):
     def get(self, request):
-        product_types = ProductType.objects.all()
+        # گرفتن انواع محصولات به ترتیب دسته‌بندی
+        product_types = ProductType.objects.all().select_related('category')
+        
         return render(request, 'core/product_type_list.html', {
-            'product_types': product_types
+            'product_types': product_types,
         })

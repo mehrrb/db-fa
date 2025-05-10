@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مدیریت محصولات</title>
+    <title>انواع محصولات</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -131,76 +131,6 @@
             transform: translateY(-5px);
         }
         
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: var(--text-dark);
-        }
-        
-        .form-control {
-            width: 100%;
-            padding: 12px;
-            font-size: 1rem;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            background-color: #f9f9f9;
-            transition: var(--transition);
-        }
-        
-        .form-control:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.2);
-        }
-        
-        .btn {
-            display: inline-block;
-            padding: 12px 24px;
-            font-size: 1rem;
-            font-weight: 600;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            text-decoration: none;
-            transition: var(--transition);
-            text-align: center;
-        }
-        
-        .btn-primary {
-            background-color: var(--primary);
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background-color: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(39, 174, 96, 0.3);
-        }
-        
-        .alert {
-            padding: 15px;
-            border-radius: 6px;
-            margin-bottom: 20px;
-            position: relative;
-            animation: fadeIn 0.5s ease-out;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .alert-success {
-            background-color: rgba(46, 204, 113, 0.15);
-            border-right: 4px solid var(--primary);
-            color: #27ae60;
-        }
-        
         .nav-link {
             display: inline-flex;
             align-items: center;
@@ -224,16 +154,51 @@
             margin-left: 8px;
         }
         
+        .category-header {
+            background-color: rgba(46, 204, 113, 0.1);
+            padding: 12px 15px;
+            margin-top: 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+            border-right: 4px solid var(--primary);
+        }
+        
+        .category-header i {
+            margin-left: 8px;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            position: relative;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .alert-success {
+            background-color: rgba(46, 204, 113, 0.15);
+            border-right: 4px solid var(--primary);
+            color: #27ae60;
+        }
+        
+        .alert-danger {
+            background-color: rgba(231, 76, 60, 0.15);
+            border-right: 4px solid #e74c3c;
+            color: #c0392b;
+        }
+        
         .empty-state {
             text-align: center;
             padding: 2rem;
             color: #7f8c8d;
-        }
-        
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
         }
         
         .header-with-action {
@@ -243,9 +208,16 @@
             margin-bottom: 1rem;
         }
         
-        .date-cell {
-            font-size: 0.9rem;
+        .info-text {
+            text-align: center;
+            margin: 1.5rem 0;
             color: #7f8c8d;
+            font-style: italic;
+            animation: fadeIn 1s ease-out;
+        }
+        
+        .responsive-table {
+            overflow-x: auto;
         }
         
         @media (max-width: 768px) {
@@ -265,10 +237,6 @@
                 font-size: 1.3rem;
             }
             
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-            
             th, td {
                 padding: 10px;
             }
@@ -281,91 +249,99 @@
             .header-with-action .nav-link {
                 margin-top: 1rem;
             }
-            
-            .responsive-table {
-                overflow-x: auto;
-            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>مدیریت محصولات</h1>
+        <h1>انواع محصولات</h1>
         
         <div class="header-with-action">
-            <a href="{% url 'product_type_list' %}" class="nav-link">
-                <i class="fas fa-list"></i>
-                مشاهده انواع محصولات
+            <a href="{% url 'product_list' %}" class="nav-link">
+                <i class="fas fa-arrow-right"></i>
+                بازگشت به لیست محصولات
             </a>
         </div>
         
         {% if messages %}
             {% for message in messages %}
-                <div class="alert alert-success">
-                    <i class="fas fa-check-circle" style="margin-left: 10px;"></i>
+                <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% endif %}">
+                    <i class="{% if message.tags == 'success' %}fas fa-check-circle{% elif message.tags == 'error' %}fas fa-exclamation-circle{% endif %}" style="margin-left: 10px;"></i>
                     {{ message }}
                 </div>
             {% endfor %}
         {% endif %}
         
         <div class="card">
-            <h2>ثبت محصول جدید</h2>
-            <form method="post">
-                {% csrf_token %}
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="{{ form.product_type.id_for_label }}">نوع محصول:</label>
-                        {{ form.product_type }}
+            <h2>لیست انواع محصولات</h2>
+            
+            <p class="info-text">
+                <i class="fas fa-info-circle" style="margin-left: 5px;"></i>
+                مقادیر وزن پایه و دور ریز از قبل تنظیم شده‌اند و به صورت خودکار اعمال می‌شوند.
+            </p>
+            
+            {% regroup product_types by category as category_list %}
+            
+            {% for category in category_list %}
+                {% if category.grouper %}
+                    <div class="category-header">
+                        <i class="fas fa-tag"></i>
+                        {{ category.grouper.name }}
                     </div>
-                    <div class="form-group">
-                        <label for="{{ form.total_weight.id_for_label }}">وزن کل (گرم):</label>
-                        {{ form.total_weight }}
+                {% else %}
+                    <div class="category-header">
+                        <i class="fas fa-tag"></i>
+                        بدون دسته‌بندی
                     </div>
-                    <div class="form-group">
-                        <label for="{{ form.price_per_kilo.id_for_label }}">قیمت هر کیلو:</label>
-                        {{ form.price_per_kilo }}
-                    </div>
+                {% endif %}
+                <div class="responsive-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>نام محصول</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for type in category.list %}
+                            <tr>
+                                <td>{{ type.name }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td class="empty-state">
+                                    <i class="fas fa-info-circle" style="margin-left: 10px;"></i>
+                                    هیچ نوع محصولی موجود نیست.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-plus" style="margin-left: 8px;"></i>
-                    ثبت محصول
-                </button>
-            </form>
-        </div>
-        
-        <div class="card">
-            <h2>لیست محصولات</h2>
-            <div class="responsive-table">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>نوع محصول</th>
-                            <th>وزن کل (گرم)</th>
-                            <th>قیمت هر کیلو</th>
-                            <th>قیمت کل</th>
-                            <th>تاریخ ثبت</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for product in products %}
-                        <tr>
-                            <td>{{ product.product_type.name }}</td>
-                            <td>{{ product.total_weight }}</td>
-                            <td>{{ product.price_per_kilo|floatformat:0 }}</td>
-                            <td>{{ product.total_price|floatformat:0 }}</td>
-                            <td class="date-cell">{{ product.created_at|date:"Y/m/d" }}</td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="5" class="empty-state">
-                                <i class="fas fa-info-circle" style="margin-left: 10px;"></i>
-                                هیچ محصولی موجود نیست.
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+            {% empty %}
+                <div class="responsive-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>نام محصول</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for type in product_types %}
+                            <tr>
+                                <td>{{ type.name }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td class="empty-state">
+                                    <i class="fas fa-info-circle" style="margin-left: 10px;"></i>
+                                    هیچ نوع محصولی موجود نیست.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endfor %}
         </div>
     </div>
 </body>
