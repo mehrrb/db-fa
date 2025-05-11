@@ -186,4 +186,4 @@ def recipe_delete(request, recipe_id):
     context = {
         'recipe': recipe,
     }
-    return render(request, 'core/recipe_confirm_delete.html', context)
+    return render(request, 'core/recipe_delete.html', context)
