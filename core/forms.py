@@ -46,3 +46,4 @@ class RecipeItemForm(forms.ModelForm):
     def label_from_instance(obj):
         # فقط نام محصول را نمایش می‌دهد
         return f"{obj.product_type.name}" 
+    
