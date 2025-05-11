@@ -330,6 +330,7 @@
                 </div>
             </div>
             
+            {% if request.user.is_staff or request.user.is_superuser %}
             <div class="dashboard-card">
                 <div class="card-header">
                     انواع محصولات
@@ -345,6 +346,7 @@
                     </a>
                 </div>
             </div>
+            {% endif %}
             
             {% if request.user.is_superuser %}
             <div class="dashboard-card">

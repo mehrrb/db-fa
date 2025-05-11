@@ -6,6 +6,7 @@
     <title>مدیریت محصولات</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <style>
         :root {
             --primary: #6772e5;
@@ -534,6 +535,15 @@
                 font-size: 0.75em;
                 padding: 0.35em 0.65em;
             }
+            
+            .select2-container--default .select2-selection--single {
+                height: 45px;
+                padding: 8px 45px 8px 12px;
+            }
+            
+            .select2-container--default .select2-selection--single .select2-selection__arrow {
+                height: 43px;
+            }
         }
         
         .amount-cell, .price-cell, .total-price-cell {
@@ -556,6 +566,133 @@
             padding: 16px 15px;
             vertical-align: middle;
         }
+        
+        /* استایل‌های Select2 */
+        .select2-container {
+            width: 100% !important;
+            position: relative;
+        }
+        
+        .select2-container--default .select2-selection--single {
+            height: 50px;
+            padding: 10px 45px 10px 14px;
+            font-size: 1rem;
+            border: 2px solid rgba(136, 152, 170, 0.2);
+            border-radius: 12px;
+            background-color: #fff;
+            transition: var(--transition);
+            box-shadow: 0 1px 3px rgba(50, 50, 93, 0.15), 0 1px 0 rgba(0, 0, 0, 0.02);
+            text-align: right;
+        }
+        
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 28px;
+            color: var(--text-dark);
+            text-align: right;
+            padding-right: 0;
+            padding-left: 20px;
+            direction: rtl;
+        }
+        
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 48px;
+            left: 10px;
+            right: auto;
+        }
+        
+        .select2-container--default .select2-selection--single .select2-selection__placeholder {
+            color: var(--text-muted);
+        }
+        
+        .select2-dropdown {
+            margin-top: 3px !important;
+            border: 2px solid var(--primary-light);
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            z-index: 9999;
+            overflow: hidden;
+            position: absolute;
+        }
+        
+        .select2-results__options {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        body .select2-container--open {
+            z-index: 9999;
+        }
+        
+        .select2-results {
+            direction: rtl;
+            text-align: right;
+        }
+        
+        .search-select-container {
+            position: relative;
+            z-index: 100;
+        }
+        
+        .search-select-container .icon-form {
+            z-index: 101;
+            right: 15px;
+        }
+        
+        .select2-container--default .select2-selection--single:focus,
+        .select2-container--default.select2-container--focus .select2-selection--single {
+            border-color: var(--primary);
+            box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+        
+        /* استایل‌های جستجو */
+        .select2-search--dropdown {
+            padding: 12px;
+            background-color: #f0f4ff;
+            border-bottom: 1px solid rgba(103, 114, 229, 0.2);
+            position: relative;
+        }
+        
+        .select2-container--default .select2-search--dropdown .select2-search__field {
+            border: 2px solid var(--primary-light);
+            border-radius: 10px;
+            padding: 12px 16px;
+            box-shadow: 0 2px 5px rgba(103, 114, 229, 0.1);
+            font-family: 'Vazirmatn', Tahoma, Arial, sans-serif;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            background-color: white;
+            color: var(--text-dark);
+            text-align: right;
+            direction: rtl;
+        }
+        
+        .select2-container--default .select2-search--dropdown .select2-search__field:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(103, 114, 229, 0.2);
+            outline: none;
+        }
+        
+        /* استایل‌های آیتم‌های نتایج */
+        .select2-results__option {
+            padding: 12px 16px;
+            transition: background-color 0.2s ease;
+            border-bottom: 1px solid rgba(136, 152, 170, 0.1);
+            font-family: 'Vazirmatn', Tahoma, Arial, sans-serif;
+        }
+        
+        .select2-container--default .select2-results__option--highlighted[aria-selected] {
+            background: var(--gradient-primary);
+            color: white;
+        }
+        
+        .select2-container--default .select2-results__option[aria-selected=true] {
+            background-color: rgba(103, 114, 229, 0.1);
+            font-weight: 500;
+        }
+        
+        .select2-results__option:last-child {
+            border-bottom: none;
+        }
     </style>
 </head>
 <body>
@@ -570,10 +707,12 @@
                     بازگشت به داشبورد
                 </a>
                 
+                {% if request.user.is_staff or request.user.is_superuser %}
                 <a href="{% url 'product_type_list' %}" class="nav-link">
                     <i class="fas fa-list"></i>
                     مشاهده انواع محصولات
                 </a>
+                {% endif %}
             </div>
             
             <a href="{% url 'logout' %}" class="nav-link nav-link-danger">
@@ -597,8 +736,13 @@
                 {% csrf_token %}
                 <div class="form-grid">
                     <div class="form-group">
-                        <label for="{{ form.product_type.id_for_label }}" class="form-label">نوع محصول</label>
-                        {{ form.product_type }}
+                        <label for="{{ form.product_type.id_for_label }}" class="form-label">
+                            <i class="fas fa-tag" style="margin-left: 5px;"></i>نوع محصول
+                        </label>
+                        <div class="input-with-icon search-select-container">
+                            {{ form.product_type }}
+                            <i class="fas fa-search icon-form"></i>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label for="{{ form.total_weight.id_for_label }}" class="form-label">مقدار</label>
@@ -701,5 +845,55 @@
             </div>
         </div>
     </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // راه‌اندازی Select2 برای فیلد انتخاب نوع محصول
+            $('#{{ form.product_type.id_for_label }}').select2({
+                placeholder: "جستجو و انتخاب نوع محصول...",
+                allowClear: true,
+                dir: "rtl",
+                dropdownParent: $('body'),
+                language: {
+                    noResults: function() {
+                        return "نتیجه‌ای یافت نشد! 🔍";
+                    },
+                    searching: function() {
+                        return "در حال جستجو... 🔎";
+                    },
+                    inputTooShort: function() {
+                        return "لطفاً حداقل یک حرف وارد کنید";
+                    }
+                },
+                templateResult: formatProductType,
+                minimumInputLength: 0
+            });
+            
+            // تابع نمایش بهتر نتایج
+            function formatProductType(product) {
+                if (!product.id) {
+                    return product.text;
+                }
+                
+                var $container = $(
+                    '<div class="select-option-item">' +
+                        '<i class="fas fa-tag" style="margin-left: 8px; color: var(--primary);"></i>' +
+                        '<span class="product-name">' + product.text + '</span>' +
+                    '</div>'
+                );
+                
+                return $container;
+            }
+            
+            // اعمال فوکوس خودکار روی فیلد جستجو هنگام باز شدن دراپ‌داون
+            $('#{{ form.product_type.id_for_label }}').on('select2:open', function() {
+                setTimeout(function() {
+                    $('.select2-search__field').focus();
+                }, 50);
+            });
+        });
+    </script>
 </body>
 </html> 

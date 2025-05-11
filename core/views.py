@@ -3,8 +3,9 @@ from django.views import View
 from django.views.generic import ListView
 from django.contrib import messages
 from django import forms
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.utils.decorators import method_decorator
+from django.contrib.admin.views.decorators import staff_member_required
 from .models import ProductType, ProductInstance, Category
 from .forms import ProductForm
 from django.http import JsonResponse
@@ -47,7 +48,7 @@ def product_list(request):
     }
     return render(request, 'core/product_list.html', context)
 
-@method_decorator(login_required, name='dispatch')
+@method_decorator(staff_member_required, name='dispatch')
 class ProductTypeListView(ListView):
     model = ProductType
     template_name = 'core/product_type_list.html'
