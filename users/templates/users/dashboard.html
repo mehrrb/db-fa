@@ -330,6 +330,22 @@
                 </div>
             </div>
             
+            <div class="dashboard-card">
+                <div class="card-header">
+                    مدیریت هزینه غذاها
+                </div>
+                <div class="card-body">
+                    <div class="card-icon">
+                        <i class="fas fa-utensils"></i>
+                    </div>
+                    <p class="card-description">محاسبه هزینه‌های غذاها بر اساس مواد اولیه</p>
+                    <a href="{% url 'recipe_list' %}" class="card-link">
+                        <i class="fas fa-arrow-left"></i>
+                        ورود به بخش مدیریت هزینه
+                    </a>
+                </div>
+            </div>
+            
             {% if request.user.is_staff or request.user.is_superuser %}
             <div class="dashboard-card">
                 <div class="card-header">

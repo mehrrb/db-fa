@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if recipe %}ویرایش غذا{% else %}افزودن غذای جدید{% endif %}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6772e5;
+            --primary-light: #8696ff;
+            --primary-dark: #4a5bd9;
+            --secondary: #f7fafc;
+            --success: #2ece89;
+            --success-light: #4be3a9;
+            --info: #11cdef;
+            --info-light: #41e7ff;
+            --warning: #fb6340;
+            --warning-light: #ffa375;
+            --danger: #f5365c;
+            --danger-light: #ff6b8a;
+            --text-dark: #32325d;
+            --text-light: #ffffff;
+            --text-muted: #8898aa;
+            --background: #f8f9fe;
+            --card-bg: #ffffff;
+            --border-radius: 16px;
+            --shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 15px 35px rgba(50, 50, 93, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
+            --transition: all 0.3s ease;
+            --gradient-primary: linear-gradient(87deg, #6772e5 0, #9e72e4 100%);
+            --gradient-success: linear-gradient(87deg, #2dce89 0, #2dcca7 100%);
+            --gradient-info: linear-gradient(87deg, #11cdef 0, #1171ef 100%);
+            --gradient-warning: linear-gradient(87deg, #fb6340 0, #fbb140 100%);
+            --gradient-danger: linear-gradient(87deg, #f5365c 0, #f56036 100%);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Vazirmatn', Tahoma, Arial, sans-serif;
+            direction: rtl;
+            text-align: right;
+            color: var(--text-dark);
+            background-color: var(--background);
+            line-height: 1.6;
+            background-image: linear-gradient(135deg, #f5f7ff 0%, #eff1fa 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+        
+        h1, h2 {
+            color: var(--text-dark);
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-top: 2rem;
+            position: relative;
+            padding-bottom: 1.2rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        
+        h1:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 4px;
+            background: var(--gradient-primary);
+            border-radius: 4px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .card {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 2.5rem;
+            margin-bottom: 2.5rem;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            height: 3px;
+            width: 100%;
+            background: var(--gradient-primary);
+        }
+        
+        .card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-5px);
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.7rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 0.95rem;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 14px 18px;
+            font-size: 1rem;
+            border: 2px solid rgba(136, 152, 170, 0.2);
+            border-radius: 12px;
+            background-color: #fff;
+            transition: var(--transition);
+            box-shadow: 0 1px 3px rgba(50, 50, 93, 0.15), 0 1px 0 rgba(0, 0, 0, 0.02);
+            font-family: 'Vazirmatn', Tahoma, Arial, sans-serif;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 14px 28px;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: var(--transition);
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+        
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: var(--gradient-info);
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
+            filter: brightness(1.05);
+        }
+        
+        .btn:active {
+            transform: translateY(1px);
+        }
+        
+        .btn i {
+            margin-left: 8px;
+        }
+        
+        .header-with-action {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .nav-link {
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 20px;
+            background: var(--gradient-info);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: var(--transition);
+            box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+        
+        .nav-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
+        }
+        
+        .nav-link i {
+            margin-left: 8px;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .card {
+                padding: 1.5rem;
+            }
+            
+            .header-with-action {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+            
+            .btn, .nav-link {
+                width: 100%;
+                text-align: center;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    {% load humanize %}
+    <div class="container">
+        <h1>{% if recipe %}ویرایش غذا{% else %}افزودن غذای جدید{% endif %}</h1>
+        
+        <div class="header-with-action">
+            <a href="{% url 'recipe_list' %}" class="nav-link">
+                <i class="fas fa-arrow-right"></i>
+                بازگشت به لیست غذاها
+            </a>
+        </div>
+        
+        <div class="card">
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="{{ form.name.id_for_label }}">نام غذا</label>
+                    {{ form.name }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.description.id_for_label }}">توضیحات</label>
+                    {{ form.description }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.selling_price.id_for_label }}">قیمت فروش (ریال)</label>
+                    {{ form.selling_price }}
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i>
+                        {% if recipe %}ذخیره تغییرات{% else %}ایجاد غذا{% endif %}
+                    </button>
+                    <a href="{% url 'recipe_list' %}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i>
+                        انصراف
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html> 

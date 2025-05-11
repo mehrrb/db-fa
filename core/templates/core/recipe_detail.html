@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ recipe.name }} - جزئیات</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6772e5;
+            --primary-light: #8696ff;
+            --primary-dark: #4a5bd9;
+            --secondary: #f7fafc;
+            --success: #2ece89;
+            --success-light: #4be3a9;
+            --info: #11cdef;
+            --info-light: #41e7ff;
+            --warning: #fb6340;
+            --warning-light: #ffa375;
+            --danger: #f5365c;
+            --danger-light: #ff6b8a;
+            --text-dark: #32325d;
+            --text-light: #ffffff;
+            --text-muted: #8898aa;
+            --background: #f8f9fe;
+            --card-bg: #ffffff;
+            --border-radius: 16px;
+            --shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 15px 35px rgba(50, 50, 93, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
+            --transition: all 0.3s ease;
+            --gradient-primary: linear-gradient(87deg, #6772e5 0, #9e72e4 100%);
+            --gradient-success: linear-gradient(87deg, #2dce89 0, #2dcca7 100%);
+            --gradient-info: linear-gradient(87deg, #11cdef 0, #1171ef 100%);
+            --gradient-warning: linear-gradient(87deg, #fb6340 0, #fbb140 100%);
+            --gradient-danger: linear-gradient(87deg, #f5365c 0, #f56036 100%);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Vazirmatn', Tahoma, Arial, sans-serif;
+            direction: rtl;
+            text-align: right;
+            color: var(--text-dark);
+            background-color: var(--background);
+            line-height: 1.6;
+            background-image: linear-gradient(135deg, #f5f7ff 0%, #eff1fa 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+        
+        h1, h2 {
+            color: var(--text-dark);
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-top: 2rem;
+            position: relative;
+            padding-bottom: 1.2rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        
+        h1:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 4px;
+            background: var(--gradient-primary);
+            border-radius: 4px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .card {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 2.5rem;
+            margin-bottom: 2.5rem;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            height: 3px;
+            width: 100%;
+            background: var(--gradient-primary);
+        }
+        
+        .card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-5px);
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 14px 28px;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: var(--transition);
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+        
+        .btn-sm {
+            padding: 10px 14px;
+            font-size: 0.9rem;
+        }
+        
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+        }
+        
+        .btn-info {
+            background: var(--gradient-info);
+            color: white;
+        }
+        
+        .btn-success {
+            background: var(--gradient-success);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: var(--gradient-danger);
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
+            filter: brightness(1.05);
+        }
+        
+        .btn:active {
+            transform: translateY(1px);
+        }
+        
+        .btn i {
+            margin-left: 8px;
+        }
+        
+        .header-with-action {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .nav-link {
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 20px;
+            background: var(--gradient-info);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: var(--transition);
+            box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+        
+        .nav-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
+        }
+        
+        .nav-link i {
+            margin-left: 8px;
+        }
+        
+        .nav-link-danger {
+            background: var(--gradient-danger);
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            position: relative;
+            animation: fadeInUp 0.5s ease-out;
+            box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .alert-success {
+            background: linear-gradient(87deg, rgba(45, 206, 137, 0.1) 0, rgba(45, 204, 167, 0.1) 100%);
+            border-right: 4px solid var(--success);
+            color: var(--success);
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.7rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 0.95rem;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 14px 18px;
+            font-size: 1rem;
+            border: 2px solid rgba(136, 152, 170, 0.2);
+            border-radius: 12px;
+            background-color: #fff;
+            transition: var(--transition);
+            box-shadow: 0 1px 3px rgba(50, 50, 93, 0.15), 0 1px 0 rgba(0, 0, 0, 0.02);
+            font-family: 'Vazirmatn', Tahoma, Arial, sans-serif;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: 3fr 1fr;
+            gap: 1rem;
+            align-items: end;
+        }
+        
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .table th, .table td {
+            padding: 14px 18px;
+            text-align: right;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .table th {
+            background: var(--gradient-primary);
+            color: white;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        
+        .table tr:hover td {
+            background-color: rgba(103, 114, 229, 0.05);
+        }
+        
+        .table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            color: white;
+            font-size: 1.5rem;
+        }
+        
+        .stat-primary {
+            background: var(--gradient-primary);
+        }
+        
+        .stat-success {
+            background: var(--gradient-success);
+        }
+        
+        .stat-info {
+            background: var(--gradient-info);
+        }
+        
+        .stat-warning {
+            background: var(--gradient-warning);
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+            color: var(--text-dark);
+        }
+        
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        
+        .recipe-header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .recipe-title {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .recipe-description {
+            margin-bottom: 0.5rem;
+            opacity: 0.9;
+        }
+        
+        .recipe-meta {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+            margin: 1.5rem 0;
+        }
+        
+        .empty-icon {
+            font-size: 3rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            margin: 2rem 0 1rem;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .section-title:after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            right: 0;
+            width: 80px;
+            height: 3px;
+            background: var(--gradient-primary);
+            border-radius: 2px;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .card {
+                padding: 1.5rem;
+            }
+            
+            .header-with-action {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .action-buttons {
+                width: 100%;
+                flex-wrap: wrap;
+            }
+            
+            .btn, .nav-link {
+                width: 100%;
+                text-align: center;
+                justify-content: center;
+                margin-bottom: 0.5rem;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .recipe-header {
+                padding: 1.5rem;
+            }
+            
+            .recipe-title {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    {% load humanize %}
+    {% load recipe_tags %}
+    <div class="container">
+        <div class="header-with-action">
+            <a href="{% url 'recipe_list' %}" class="nav-link">
+                <i class="fas fa-arrow-right"></i>
+                بازگشت به لیست غذاها
+            </a>
+            
+            <div class="action-buttons">
+                <a href="{% url 'recipe_update' recipe_id=recipe.id %}" class="btn btn-info">
+                    <i class="fas fa-edit"></i>
+                    ویرایش
+                </a>
+                <a href="{% url 'recipe_delete' recipe_id=recipe.id %}" class="btn btn-danger">
+                    <i class="fas fa-trash"></i>
+                    حذف
+                </a>
+            </div>
+        </div>
+        
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle" style="margin-left: 10px;"></i>
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        <div class="recipe-header">
+            <h1 class="recipe-title">{{ recipe.name }}</h1>
+            {% if recipe.description %}
+                <div class="recipe-description">{{ recipe.description }}</div>
+            {% endif %}
+            <div class="recipe-meta">
+                <i class="fas fa-calendar"></i> تاریخ ایجاد: {{ recipe.created_at|date:"Y/m/d" }}
+            </div>
+        </div>
+        
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-icon stat-primary">
+                    <i class="fas fa-shopping-basket"></i>
+                </div>
+                <div class="stat-label">تعداد مواد اولیه</div>
+                <div class="stat-value">{{ recipe_items.count }}</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon stat-info">
+                    <i class="fas fa-money-bill-wave"></i>
+                </div>
+                <div class="stat-label">هزینه کل</div>
+                <div class="stat-value">{{ recipe.total_cost|floatformat:0|intcomma }} ریال</div>
+            </div>
+            
+            {% if recipe.selling_price %}
+            <div class="stat-card">
+                <div class="stat-icon stat-success">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="stat-label">سود خالص</div>
+                <div class="stat-value">{{ profit|floatformat:0|intcomma }} ریال</div>
+                <div>({{ profit_percentage|floatformat:1 }}٪)</div>
+            </div>
+            {% endif %}
+            
+            {% if recipe.selling_price %}
+            <div class="stat-card">
+                <div class="stat-icon stat-warning">
+                    <i class="fas fa-tag"></i>
+                </div>
+                <div class="stat-label">قیمت فروش</div>
+                <div class="stat-value">{{ recipe.selling_price|floatformat:0|intcomma }} ریال</div>
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="card">
+            <h2 class="section-title">مواد تشکیل‌دهنده</h2>
+            
+            {% if recipe_items %}
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>نام ماده</th>
+                            <th>مقدار</th>
+                            <th>قیمت واحد</th>
+                            <th>قیمت کل</th>
+                            <th>عملیات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in recipe_items %}
+                            <tr>
+                                <td><strong>{{ item.product_instance.product_type.name }}</strong></td>
+                                <td>
+                                    {{ item.quantity }}
+                                    {% if item.product_instance.unit == 'gram' %}
+                                        گرم
+                                    {% elif item.product_instance.unit == 'piece' %}
+                                        عدد
+                                    {% elif item.product_instance.unit == 'liter' %}
+                                        لیتر
+                                    {% elif item.product_instance.unit == 'meter' %}
+                                        متر
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {{ item.product_instance.price_per_kilo|floatformat:0|intcomma }}
+                                    {% if item.product_instance.unit == 'gram' %}
+                                        / کیلو
+                                    {% elif item.product_instance.unit == 'piece' %}
+                                        / عدد
+                                    {% elif item.product_instance.unit == 'liter' %}
+                                        / لیتر
+                                    {% elif item.product_instance.unit == 'meter' %}
+                                        / متر
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if item.product_instance.unit == 'gram' %}
+                                        {{ item.product_instance.price_per_kilo|multiply:item.quantity|divide:1000|floatformat:0|intcomma }}
+                                    {% else %}
+                                        {{ item.product_instance.price_per_kilo|multiply:item.quantity|floatformat:0|intcomma }}
+                                    {% endif %}
+                                    ریال
+                                </td>
+                                <td>
+                                    <a href="{% url 'recipe_item_delete' item_id=item.id %}" class="btn btn-danger btn-sm" onclick="return confirm('آیا از حذف این ماده مطمئن هستید؟');">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-box-open empty-icon"></i>
+                    <p>هنوز ماده‌ای به این غذا اضافه نشده است.</p>
+                </div>
+            {% endif %}
+            
+            <h2 class="section-title">افزودن ماده جدید</h2>
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="{{ form.product_instance.id_for_label }}">انتخاب ماده</label>
+                        {{ form.product_instance }}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.quantity.id_for_label }}">مقدار</label>
+                        {{ form.quantity }}
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-plus"></i>
+                    افزودن ماده
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        // این اسکریپت برای شبیه‌سازی توابع multiply و divide در تمپلیت است
+        // در حالت واقعی باید از تمپلیت تگ‌های سفارشی در جنگو استفاده کرد
+        document.addEventListener('DOMContentLoaded', function() {
+            // اینجا می‌توانید کدهای جاوااسکریپت مورد نیاز را اضافه کنید
+        });
+    </script>
+</body>
+</html> 

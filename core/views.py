@@ -6,8 +6,8 @@ from django import forms
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.utils.decorators import method_decorator
 from django.contrib.admin.views.decorators import staff_member_required
-from .models import ProductType, ProductInstance, Category
-from .forms import ProductForm
+from .models import ProductType, ProductInstance, Category, Recipe, RecipeItem
+from .forms import ProductForm, RecipeForm, RecipeItemForm
 from django.http import JsonResponse
 
 # فرم ایجاد محصول جدید
@@ -69,3 +69,121 @@ def get_product_type_unit(request):
         return JsonResponse({'error': 'Product type not found'}, status=404)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
+@login_required
+def recipe_list(request):
+    """نمایش لیست دستورات غذایی کاربر"""
+    recipes = Recipe.objects.filter(user=request.user).order_by('-created_at')
+    
+    context = {
+        'recipes': recipes,
+    }
+    return render(request, 'core/recipe_list.html', context)
+
+@login_required
+def recipe_create(request):
+    """ایجاد دستور غذای جدید"""
+    if request.method == 'POST':
+        form = RecipeForm(request.POST)
+        if form.is_valid():
+            recipe = form.save(commit=False)
+            recipe.user = request.user
+            recipe.save()
+            messages.success(request, "دستور غذای جدید با موفقیت ایجاد شد.")
+            return redirect('recipe_detail', recipe_id=recipe.id)
+    else:
+        form = RecipeForm()
+        
+    context = {
+        'form': form,
+    }
+    return render(request, 'core/recipe_form.html', context)
+
+@login_required
+def recipe_detail(request, recipe_id):
+    """نمایش جزئیات دستور غذا و مواد تشکیل‌دهنده آن"""
+    recipe = get_object_or_404(Recipe, id=recipe_id, user=request.user)
+    recipe_items = recipe.recipe_items.all()
+    
+    # فرم اضافه کردن ماده تشکیل‌دهنده جدید
+    if request.method == 'POST':
+        form = RecipeItemForm(request.user, request.POST)
+        if form.is_valid():
+            recipe_item = form.save(commit=False)
+            recipe_item.recipe = recipe
+            recipe_item.save()
+            
+            # به‌روزرسانی قیمت کل دستور غذا
+            recipe.calculate_total_cost()
+            
+            messages.success(request, "ماده اولیه با موفقیت اضافه شد.")
+            return redirect('recipe_detail', recipe_id=recipe.id)
+    else:
+        form = RecipeItemForm(request.user)
+    
+    # محاسبه آمارها
+    profit = recipe.calculate_profit()
+    profit_percentage = recipe.calculate_profit_percentage()
+    
+    context = {
+        'recipe': recipe,
+        'recipe_items': recipe_items,
+        'form': form,
+        'profit': profit,
+        'profit_percentage': profit_percentage,
+    }
+    return render(request, 'core/recipe_detail.html', context)
+
+@login_required
+def recipe_item_delete(request, item_id):
+    """حذف ماده تشکیل‌دهنده از دستور غذا"""
+    recipe_item = get_object_or_404(RecipeItem, id=item_id)
+    recipe = recipe_item.recipe
+    
+    # بررسی مالکیت
+    if recipe.user != request.user:
+        messages.error(request, "شما اجازه حذف این ماده را ندارید.")
+        return redirect('recipe_list')
+    
+    recipe_item.delete()
+    
+    # به‌روزرسانی قیمت کل دستور غذا
+    recipe.calculate_total_cost()
+    
+    messages.success(request, "ماده اولیه با موفقیت حذف شد.")
+    return redirect('recipe_detail', recipe_id=recipe.id)
+
+@login_required
+def recipe_update(request, recipe_id):
+    """ویرایش اطلاعات دستور غذا"""
+    recipe = get_object_or_404(Recipe, id=recipe_id, user=request.user)
+    
+    if request.method == 'POST':
+        form = RecipeForm(request.POST, instance=recipe)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "دستور غذا با موفقیت به‌روزرسانی شد.")
+            return redirect('recipe_detail', recipe_id=recipe.id)
+    else:
+        form = RecipeForm(instance=recipe)
+    
+    context = {
+        'form': form,
+        'recipe': recipe,
+    }
+    return render(request, 'core/recipe_form.html', context)
+
+@login_required
+def recipe_delete(request, recipe_id):
+    """حذف دستور غذا"""
+    recipe = get_object_or_404(Recipe, id=recipe_id, user=request.user)
+    
+    if request.method == 'POST':
+        recipe.delete()
+        messages.success(request, "دستور غذا با موفقیت حذف شد.")
+        return redirect('recipe_list')
+    
+    context = {
+        'recipe': recipe,
+    }
+    return render(request, 'core/recipe_confirm_delete.html', context)

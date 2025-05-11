@@ -101,3 +101,71 @@ class ProductInstance(models.Model):
     class Meta:
         verbose_name = "محصول"
         verbose_name_plural = "محصولات"
+
+class Recipe(models.Model):
+    """مدل برای ذخیره دستور غذا و محاسبه هزینه‌ها"""
+    name = models.CharField(max_length=200, verbose_name="نام غذا")
+    description = models.TextField(blank=True, null=True, verbose_name="توضیحات")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="تاریخ ایجاد")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='recipes', verbose_name='کاربر')
+    
+    # قیمت محاسبه شده نهایی
+    total_cost = models.FloatField(default=0, verbose_name="هزینه کل")
+    selling_price = models.FloatField(blank=True, null=True, verbose_name="قیمت فروش")
+    
+    def calculate_total_cost(self):
+        """محاسبه هزینه کل بر اساس مواد تشکیل‌دهنده"""
+        total = 0
+        for item in self.recipe_items.all():
+            # محاسبه قیمت هر ماده بر اساس مقدار و قیمت آن
+            if item.product_instance.unit == ProductType.UNIT_GRAM:
+                # برای مواد وزنی (گرم)
+                item_cost = (item.product_instance.price_per_kilo * item.quantity) / 1000
+            else:
+                # برای سایر واحدها (عدد، لیتر، متر)
+                item_cost = item.product_instance.price_per_kilo * item.quantity
+                
+            total += item_cost
+            
+        self.total_cost = total
+        self.save()
+        return total
+    
+    def calculate_profit(self):
+        """محاسبه سود خالص"""
+        if not self.selling_price:
+            return 0
+        return self.selling_price - self.total_cost
+    
+    def calculate_profit_percentage(self):
+        """محاسبه درصد سود"""
+        if not self.selling_price or self.total_cost == 0:
+            return 0
+        return (self.selling_price - self.total_cost) / self.total_cost * 100
+    
+    def __str__(self):
+        return self.name
+    
+    class Meta:
+        verbose_name = "دستور غذا"
+        verbose_name_plural = "دستورهای غذا"
+
+class RecipeItem(models.Model):
+    """مدل برای نگهداری مواد تشکیل‌دهنده یک دستور غذا"""
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name='recipe_items', verbose_name="دستور غذا")
+    product_instance = models.ForeignKey(ProductInstance, on_delete=models.CASCADE, verbose_name="ماده اولیه")
+    quantity = models.FloatField(default=1, verbose_name="مقدار")
+    
+    def __str__(self):
+        unit_display = {
+            'gram': 'گرم',
+            'piece': 'عدد',
+            'liter': 'لیتر',
+            'meter': 'متر'
+        }.get(self.product_instance.unit, 'واحد')
+        
+        return f"{self.quantity} {unit_display} {self.product_instance.product_type.name}"
+    
+    class Meta:
+        verbose_name = "ماده تشکیل‌دهنده"
+        verbose_name_plural = "مواد تشکیل‌دهنده"
