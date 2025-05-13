@@ -1,335 +1,118 @@
-<!DOCTYPE html>
-<html dir="rtl" lang="fa">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ثبت کاربر جدید</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #5e72e4;
-            --primary-light: #7795f8;
-            --primary-dark: #324cdd;
-            --secondary: #f7fafc;
-            --success: #2dce89;
-            --success-light: #4be3a9;
-            --info: #11cdef;
-            --info-light: #41e7ff;
-            --warning: #fb6340;
-            --warning-light: #ffa375;
-            --danger: #f5365c;
-            --danger-light: #ff6b8a;
-            --text-dark: #32325d;
-            --text-light: #ffffff;
-            --text-muted: #8898aa;
-            --background: #f8f9fe;
-            --card-bg: #ffffff;
-            --border-radius: 12px;
-            --shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
-            --shadow-lg: 0 15px 35px rgba(50, 50, 93, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
-            --transition: all 0.3s ease;
-            --gradient-primary: linear-gradient(87deg, #5e72e4 0, #825ee4 100%);
-            --gradient-success: linear-gradient(87deg, #2dce89 0, #2dcca7 100%);
-            --gradient-info: linear-gradient(87deg, #11cdef 0, #1171ef 100%);
-            --gradient-warning: linear-gradient(87deg, #fb6340 0, #fbb140 100%);
-            --gradient-danger: linear-gradient(87deg, #f5365c 0, #f56036 100%);
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Vazirmatn', Tahoma, Arial, sans-serif;
-            direction: rtl;
-            text-align: right;
-            color: var(--text-dark);
-            background-color: var(--background);
-            line-height: 1.6;
-            background-image: linear-gradient(180deg, #5e72e420 0%, #f8f9fe 100%);
-            background-attachment: fixed;
-            min-height: 100vh;
-        }
-        
-        h1, h2 {
-            color: var(--text-dark);
-            margin-bottom: 1.5rem;
-            text-align: center;
-        }
-        
-        h1 {
-            font-size: 2.5rem;
-            margin-top: 2rem;
-            position: relative;
-            padding-bottom: 1rem;
-            background: var(--gradient-primary);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-weight: 700;
-        }
-        
-        h1:after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 100px;
-            height: 4px;
-            background: var(--gradient-primary);
-            border-radius: 4px;
-        }
-        
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-        
-        .card {
-            background-color: var(--card-bg);
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow-lg);
-            padding: 2rem;
-            margin-bottom: 2rem;
-            transition: var(--transition);
-            border-top: 3px solid var(--info);
-            animation: fadeInUp 0.5s ease-out;
-        }
-        
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-        }
-        
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: var(--text-dark);
-        }
-        
-        .form-control {
-            width: 100%;
-            padding: 12px 15px;
-            font-size: 1rem;
-            border: 1px solid rgba(136, 152, 170, 0.2);
-            border-radius: 8px;
-            background-color: #fff;
-            transition: var(--transition);
-            box-shadow: 0 1px 3px rgba(50, 50, 93, 0.15), 0 1px 0 rgba(0, 0, 0, 0.02);
-            font-family: 'Vazirmatn', Tahoma, Arial, sans-serif;
-        }
-        
-        .form-control:focus {
-            outline: none;
-            border-color: var(--primary-light);
-            box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
-        }
-        
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 12px 24px;
-            font-size: 1rem;
-            font-weight: 600;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            text-decoration: none;
-            transition: var(--transition);
-            text-align: center;
-            box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
-            font-family: 'Vazirmatn', Tahoma, Arial, sans-serif;
-        }
-        
-        .btn-primary {
-            background: var(--gradient-primary);
-            color: white;
-        }
-        
-        .btn-secondary {
-            background: var(--gradient-info);
-            color: white;
-        }
-        
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
-        }
-        
-        .btn:active {
-            transform: translateY(1px);
-        }
-        
-        .btn i {
-            margin-left: 8px;
-        }
-        
-        .actions {
-            display: flex;
-            gap: 1rem;
-            margin-top: 2rem;
-        }
-        
-        .error-list {
-            background: linear-gradient(87deg, rgba(245, 54, 92, 0.1) 0, rgba(245, 96, 54, 0.1) 100%);
-            border-right: 4px solid var(--danger);
-            color: var(--danger);
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 1.5rem;
-            list-style-position: inside;
-        }
-        
-        .header-with-action {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-        
-        .nav-link {
-            display: inline-flex;
-            align-items: center;
-            padding: 10px 20px;
-            background: var(--gradient-info);
-            color: white;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: 600;
-            transition: var(--transition);
-            box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
-        }
-        
-        .nav-link:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
-        }
-        
-        .nav-link i {
-            margin-left: 8px;
-        }
-        
-        @media (max-width: 768px) {
-            .container {
-                padding: 1rem;
-            }
-            
-            .card {
-                padding: 1.5rem;
-            }
-            
-            h1 {
-                font-size: 1.8rem;
-            }
-            
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .actions {
-                flex-direction: column;
-            }
-            
-            .header-with-action {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            
-            .header-with-action .nav-link {
-                margin-top: 1rem;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
+{% extends "users/base.html" %}
+
+{% block title %}ثبت کاربر جدید{% endblock %}
+
+{% block extra_css %}
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.error-list {
+    background: linear-gradient(87deg, rgba(245, 54, 92, 0.1) 0, rgba(245, 96, 54, 0.1) 100%);
+    border-right: 4px solid var(--danger);
+    color: var(--danger);
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    list-style-position: inside;
+}
+
+.header-with-action {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="card">
         <div class="header-with-action">
             <h1>ثبت کاربر جدید</h1>
-            
-            <a href="{% url 'dashboard' %}" class="nav-link">
+            <a href="{% url 'dashboard' %}" class="btn btn-secondary">
                 <i class="fas fa-arrow-right"></i>
                 بازگشت به داشبورد
             </a>
         </div>
         
-        <div class="card">
-            {% if form.errors %}
-                <ul class="error-list">
-                    {% for field in form %}
-                        {% for error in field.errors %}
-                            <li>{{ field.label }}: {{ error }}</li>
-                        {% endfor %}
-                    {% endfor %}
-                    {% for error in form.non_field_errors %}
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle" style="margin-left: 10px;"></i>
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        {% if form.errors %}
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-circle" style="margin-left: 10px;"></i>
+                لطفا خطاهای زیر را برطرف کنید:
+            </div>
+            <ul class="error-list">
+                {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
                         <li>{{ error }}</li>
                     {% endfor %}
-                </ul>
-            {% endif %}
+                {% endfor %}
+            </ul>
+        {% endif %}
+        
+        <form method="post" action="{% url 'register' %}">
+            {% csrf_token %}
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="{{ form.username.id_for_label }}">{{ form.username.label }}</label>
+                    {{ form.username }}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.email.id_for_label }}">{{ form.email.label }}</label>
+                    {{ form.email }}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.first_name.id_for_label }}">{{ form.first_name.label }}</label>
+                    {{ form.first_name }}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.last_name.id_for_label }}">{{ form.last_name.label }}</label>
+                    {{ form.last_name }}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.password1.id_for_label }}">{{ form.password1.label }}</label>
+                    {{ form.password1 }}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.password2.id_for_label }}">{{ form.password2.label }}</label>
+                    {{ form.password2 }}
+                </div>
+            </div>
             
-            <form method="post">
-                {% csrf_token %}
+            <div class="actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-user-plus"></i>
+                    ایجاد کاربر
+                </button>
                 
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="{{ form.username.id_for_label }}">{{ form.username.label }}</label>
-                        {{ form.username }}
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="{{ form.email.id_for_label }}">{{ form.email.label }}</label>
-                        {{ form.email }}
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="{{ form.first_name.id_for_label }}">{{ form.first_name.label }}</label>
-                        {{ form.first_name }}
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="{{ form.last_name.id_for_label }}">{{ form.last_name.label }}</label>
-                        {{ form.last_name }}
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="{{ form.password1.id_for_label }}">{{ form.password1.label }}</label>
-                        {{ form.password1 }}
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="{{ form.password2.id_for_label }}">{{ form.password2.label }}</label>
-                        {{ form.password2 }}
-                    </div>
-                </div>
-                
-                <div class="actions">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-user-plus"></i>
-                        ثبت کاربر جدید
-                    </button>
-                    
-                    <a href="{% url 'dashboard' %}" class="btn btn-secondary">
-                        <i class="fas fa-times"></i>
-                        انصراف
-                    </a>
-                </div>
-            </form>
-        </div>
+                <a href="{% url 'dashboard' %}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i>
+                    انصراف
+                </a>
+            </div>
+        </form>
     </div>
-</body>
-</html> 
+</div>
+{% endblock %} 

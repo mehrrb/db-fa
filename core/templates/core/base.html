@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}سیستم مدیریت محصولات{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <style>
+        :root {
+            --primary: #6772e5;
+            --primary-light: #8696ff;
+            --primary-dark: #4a5bd9;
+            --secondary: #f7fafc;
+            --success: #2ece89;
+            --success-light: #4be3a9;
+            --info: #11cdef;
+            --info-light: #41e7ff;
+            --warning: #fb6340;
+            --warning-light: #ffa375;
+            --danger: #f5365c;
+            --danger-light: #ff6b8a;
+            --text-dark: #32325d;
+            --text-light: #ffffff;
+            --text-muted: #8898aa;
+            --background: #f8f9fe;
+            --card-bg: #ffffff;
+            --border-radius: 16px;
+            --shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 15px 35px rgba(50, 50, 93, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
+            --transition: all 0.3s ease;
+            --gradient-primary: linear-gradient(87deg, #6772e5 0, #9e72e4 100%);
+            --gradient-success: linear-gradient(87deg, #2dce89 0, #2dcca7 100%);
+            --gradient-info: linear-gradient(87deg, #11cdef 0, #1171ef 100%);
+            --gradient-warning: linear-gradient(87deg, #fb6340 0, #fbb140 100%);
+            --gradient-danger: linear-gradient(87deg, #f5365c 0, #f56036 100%);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Vazirmatn', Tahoma, Arial, sans-serif;
+            direction: rtl;
+            text-align: right;
+            color: var(--text-dark);
+            background-color: var(--background);
+            line-height: 1.6;
+            background-image: linear-gradient(135deg, #f5f7ff 0%, #eff1fa 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+        
+        h1, h2 {
+            color: var(--text-dark);
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-top: 2rem;
+            position: relative;
+            padding-bottom: 1.2rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        
+        h1:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 4px;
+            background: var(--gradient-primary);
+            border-radius: 4px;
+        }
+        
+        h2 {
+            font-size: 1.8rem;
+            color: var(--text-dark);
+            position: relative;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+        
+        h2:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 60px;
+            height: 3px;
+            background: var(--gradient-info);
+            border-radius: 2px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .card {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 2.5rem;
+            margin-bottom: 2.5rem;
+            transition: var(--transition);
+            border-top: 3px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            height: 3px;
+            width: 100%;
+            background: var(--gradient-primary);
+        }
+        
+        .card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-5px);
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.7rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            font-size: 1rem;
+            border: 1px solid rgba(136, 152, 170, 0.2);
+            border-radius: 10px;
+            background-color: var(--card-bg);
+            transition: var(--transition);
+            box-shadow: 0 1px 3px rgba(50, 50, 93, 0.15), 0 1px 0 rgba(0, 0, 0, 0.02);
+            font-family: 'Vazirmatn', Tahoma, Arial, sans-serif;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-light);
+            box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: var(--transition);
+            box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
+            font-family: 'Vazirmatn', Tahoma, Arial, sans-serif;
+        }
+        
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: var(--text-light);
+        }
+        
+        .btn-secondary {
+            background: var(--gradient-info);
+            color: var(--text-light);
+        }
+        
+        .btn-success {
+            background: var(--gradient-success);
+            color: var(--text-light);
+        }
+        
+        .btn-danger {
+            background: var(--gradient-danger);
+            color: var(--text-light);
+        }
+        
+        .btn-warning {
+            background: var(--gradient-warning);
+            color: var(--text-light);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
+        }
+        
+        .btn:active {
+            transform: translateY(1px);
+        }
+        
+        .btn i {
+            margin-left: 8px;
+        }
+        
+        /* Table styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: var(--card-bg);
+            box-shadow: var(--shadow);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+        
+        th, td {
+            padding: 15px;
+            text-align: right;
+            border-bottom: 1px solid rgba(136, 152, 170, 0.1);
+        }
+        
+        th {
+            background: var(--gradient-primary);
+            color: var(--text-light);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+            padding: 18px 15px;
+        }
+        
+        tbody tr {
+            transition: var(--transition);
+        }
+        
+        tbody tr:hover {
+            background-color: rgba(103, 114, 229, 0.05);
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(50, 50, 93, 0.1);
+        }
+        
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+        
+        /* Alert styles */
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            position: relative;
+            animation: fadeInUp 0.5s ease-out;
+            box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .alert-success {
+            background: linear-gradient(87deg, rgba(45, 206, 137, 0.1) 0, rgba(45, 204, 167, 0.1) 100%);
+            border-right: 4px solid var(--success);
+            color: var(--success);
+        }
+        
+        .alert-danger {
+            background: linear-gradient(87deg, rgba(245, 54, 92, 0.1) 0, rgba(245, 96, 54, 0.1) 100%);
+            border-right: 4px solid var(--danger);
+            color: var(--danger);
+        }
+        
+        .alert-warning {
+            background: linear-gradient(87deg, rgba(251, 99, 64, 0.1) 0, rgba(251, 177, 64, 0.1) 100%);
+            border-right: 4px solid var(--warning);
+            color: var(--warning);
+        }
+        
+        .alert-info {
+            background: linear-gradient(87deg, rgba(17, 205, 239, 0.1) 0, rgba(17, 113, 239, 0.1) 100%);
+            border-right: 4px solid var(--info);
+            color: var(--info);
+        }
+        
+        /* Header with actions */
+        .header-with-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .page-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 0;
+            color: var(--text-dark);
+        }
+        
+        .actions {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        /* Navigation */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background-color: var(--card-bg);
+            box-shadow: var(--shadow);
+            border-radius: 0 0 var(--border-radius) var(--border-radius);
+            margin-bottom: 2rem;
+        }
+        
+        .nav-logo {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        .nav-items {
+            display: flex;
+            gap: 1.5rem;
+        }
+        
+        .nav-link {
+            color: var(--text-dark);
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+        }
+        
+        .nav-link i {
+            margin-left: 8px;
+        }
+        
+        .nav-link:hover {
+            color: var(--primary);
+        }
+        
+        .nav-link.active {
+            color: var(--primary);
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .card {
+                padding: 1.5rem;
+            }
+            
+            .header-with-actions {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .actions {
+                margin-top: 1rem;
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+        }
+        
+        {% block extra_css %}{% endblock %}
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <div class="navbar">
+        <a href="{% url 'dashboard' %}" class="nav-logo">
+            <i class="fas fa-cubes"></i> سیستم مدیریت
+        </a>
+        <div class="nav-items">
+            <a href="{% url 'product_list' %}" class="nav-link{% if request.resolver_match.url_name == 'product_list' %} active{% endif %}">
+                <i class="fas fa-box"></i> محصولات
+            </a>
+            <a href="{% url 'recipe_list' %}" class="nav-link{% if request.resolver_match.url_name == 'recipe_list' %} active{% endif %}">
+                <i class="fas fa-utensils"></i> دستور غذاها
+            </a>
+            {% if request.user.is_staff %}
+            <a href="{% url 'product_type_list' %}" class="nav-link{% if request.resolver_match.url_name == 'product_type_list' %} active{% endif %}">
+                <i class="fas fa-tags"></i> انواع محصولات
+            </a>
+            {% endif %}
+            <a href="{% url 'dashboard' %}" class="nav-link{% if request.resolver_match.url_name == 'dashboard' %} active{% endif %}">
+                <i class="fas fa-tachometer-alt"></i> داشبورد
+            </a>
+            <a href="{% url 'logout' %}" class="nav-link">
+                <i class="fas fa-sign-out-alt"></i> خروج
+            </a>
+        </div>
+    </div>
+    
+    <div class="container">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{% if message.tags %}{{ message.tags }}{% else %}info{% endif %}">
+                    <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' or message.tags == 'danger' %}fa-exclamation-circle{% elif message.tags == 'warning' %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %}" style="margin-left: 10px;"></i>
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        {% block content %}{% endblock %}
+    </div>
+    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html> 
