@@ -8,9 +8,125 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.http import JsonResponse
 from typing import Dict, Any, Union
 
+from rest_framework import viewsets, status, permissions
+from rest_framework.decorators import api_view, permission_classes, action
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
+
 from .models import ProductType, ProductInstance, Category, Recipe, RecipeItem
 from .forms import ProductForm, RecipeForm, RecipeItemForm
+from .serializers import (
+    CategorySerializer, ProductTypeSerializer, ProductInstanceSerializer,
+    RecipeSerializer, RecipeItemSerializer
+)
 
+# API ViewSets
+
+class CategoryViewSet(viewsets.ModelViewSet):
+    """API endpoint for categories."""
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    
+    def get_permissions(self):
+        if self.action in ['create', 'update', 'partial_update', 'destroy']:
+            permission_classes = [IsAdminUser]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
+
+class ProductTypeViewSet(viewsets.ModelViewSet):
+    """API endpoint for product types."""
+    queryset = ProductType.objects.all()
+    serializer_class = ProductTypeSerializer
+    filterset_fields = ['category', 'unit']
+    search_fields = ['name']
+    
+    def get_permissions(self):
+        if self.action in ['create', 'update', 'partial_update', 'destroy']:
+            permission_classes = [IsAdminUser]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
+
+class ProductInstanceViewSet(viewsets.ModelViewSet):
+    """API endpoint for product instances."""
+    serializer_class = ProductInstanceSerializer
+    filterset_fields = ['product_type', 'unit']
+    search_fields = ['product_type__name']
+    
+    def get_queryset(self):
+        """Filter queryset by the current user."""
+        if self.request.user.is_staff:
+            return ProductInstance.objects.all()
+        return ProductInstance.objects.filter(user=self.request.user)
+
+class RecipeViewSet(viewsets.ModelViewSet):
+    """API endpoint for recipes."""
+    serializer_class = RecipeSerializer
+    search_fields = ['name', 'description']
+    
+    def get_queryset(self):
+        """Filter queryset by the current user."""
+        if self.request.user.is_staff:
+            return Recipe.objects.all()
+        return Recipe.objects.filter(user=self.request.user)
+    
+    @action(detail=True, methods=['post'])
+    def recalculate_cost(self, request, pk=None):
+        """Endpoint for recalculating recipe cost."""
+        recipe = self.get_object()
+        total_cost = recipe.calculate_total_cost()
+        return Response({'total_cost': total_cost})
+
+class RecipeItemViewSet(viewsets.ModelViewSet):
+    """API endpoint for recipe items."""
+    serializer_class = RecipeItemSerializer
+    
+    def get_queryset(self):
+        """Filter queryset by the current user's recipes."""
+        if self.request.user.is_staff:
+            return RecipeItem.objects.all()
+        return RecipeItem.objects.filter(recipe__user=self.request.user)
+    
+    def create(self, request, *args, **kwargs):
+        """Override create to validate recipe ownership."""
+        recipe_id = request.data.get('recipe')
+        try:
+            recipe = Recipe.objects.get(id=recipe_id)
+            if recipe.user != request.user and not request.user.is_staff:
+                return Response(
+                    {'detail': 'You do not have permission to add items to this recipe.'},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+        except Recipe.DoesNotExist:
+            return Response(
+                {'detail': 'Recipe not found.'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+            
+        response = super().create(request, *args, **kwargs)
+        
+        # Recalculate recipe cost
+        if response.status_code == status.HTTP_201_CREATED:
+            recipe.calculate_total_cost()
+            
+        return response
+    
+    def destroy(self, request, *args, **kwargs):
+        """Override destroy to recalculate recipe cost after deletion."""
+        instance = self.get_object()
+        recipe = instance.recipe
+        
+        response = super().destroy(request, *args, **kwargs)
+        
+        # Recalculate recipe cost
+        if response.status_code == status.HTTP_204_NO_CONTENT:
+            recipe.calculate_total_cost()
+            
+        return response
+
+# Legacy views for template-based access
 
 @login_required
 def product_list(request) -> Union[redirect, render]:
@@ -199,4 +315,4 @@ def recipe_delete(request, recipe_id: int) -> Union[redirect, render]:
     context = {
         'recipe': recipe,
     }
-    return render(request, 'core/recipe_delete.html', context)
+    return render(request, 'core/recipe_confirm_delete.html', context)
