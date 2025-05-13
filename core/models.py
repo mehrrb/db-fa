@@ -1,12 +1,14 @@
 from django.db import models
 from django.contrib.auth.models import User
+from decimal import Decimal
+from typing import Optional, Union
 
 # Create your models here.
 class Category(models.Model):
-    """مدل برای دسته‌بندی انواع محصولات"""
+    """Category model for classifying different product types."""
     name = models.CharField(max_length=100, verbose_name="نام دسته‌بندی")
     
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
     
     class Meta:
@@ -14,8 +16,8 @@ class Category(models.Model):
         verbose_name_plural = "دسته‌بندی‌ها"
 
 class ProductType(models.Model):
-    """مدل برای نگهداری انواع محصولات با مقادیر ثابت"""
-    # انواع واحدهای اندازه‌گیری
+    """Model for storing product types with fixed values."""
+    # Measurement unit constants
     UNIT_GRAM = 'gram'
     UNIT_PIECE = 'piece'
     UNIT_LITER = 'liter'
@@ -31,17 +33,29 @@ class ProductType(models.Model):
     name = models.CharField(max_length=100, verbose_name="نوع محصول")
     base_weight = models.FloatField(verbose_name="وزن پایه")
     waste = models.FloatField(verbose_name="دور ریز")
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='product_types', null=True, blank=True, verbose_name="دسته‌بندی")
-    unit = models.CharField(max_length=10, choices=UNIT_CHOICES, default=UNIT_GRAM, verbose_name="واحد")
+    category = models.ForeignKey(
+        Category, 
+        on_delete=models.CASCADE, 
+        related_name='product_types', 
+        null=True, 
+        blank=True, 
+        verbose_name="دسته‌بندی"
+    )
+    unit = models.CharField(
+        max_length=10, 
+        choices=UNIT_CHOICES, 
+        default=UNIT_GRAM, 
+        verbose_name="واحد"
+    )
     
-    # نسبت دور ریز به وزن پایه
     @property
-    def waste_ratio(self):
+    def waste_ratio(self) -> float:
+        """Calculate waste to base weight ratio."""
         if self.base_weight > 0:
             return self.waste / self.base_weight
         return 0
     
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
     
     class Meta:
@@ -49,12 +63,8 @@ class ProductType(models.Model):
         verbose_name_plural = "انواع محصولات"
 
 class ProductInstance(models.Model):
-    """نمونه محصول با قیمت و مقادیر محاسبه شده"""
-    product_type = models.ForeignKey(ProductType, on_delete=models.CASCADE, verbose_name="نوع محصول")
-    total_weight = models.FloatField(default=1000, verbose_name="مقدار")
-    price_per_kilo = models.FloatField(default=10000, verbose_name="قیمت هر واحد")
-    
-    # افزودن فیلد واحد - کاربر می‌تواند واحد را خودش انتخاب کند
+    """Product instance with price and calculated values."""
+    # Measurement unit constants - same as ProductType
     UNIT_GRAM = 'gram'
     UNIT_PIECE = 'piece'
     UNIT_LITER = 'liter'
@@ -67,35 +77,74 @@ class ProductInstance(models.Model):
         (UNIT_METER, 'متر'),
     ]
     
-    unit = models.CharField(max_length=10, choices=UNIT_CHOICES, default=UNIT_GRAM, verbose_name="واحد")
+    product_type = models.ForeignKey(
+        ProductType, 
+        on_delete=models.CASCADE, 
+        verbose_name="نوع محصول"
+    )
+    total_weight = models.FloatField(
+        default=1000, 
+        verbose_name="مقدار"
+    )
+    price_per_kilo = models.FloatField(
+        default=10000, 
+        verbose_name="قیمت هر واحد"
+    )
+    unit = models.CharField(
+        max_length=10, 
+        choices=UNIT_CHOICES, 
+        default=UNIT_GRAM, 
+        verbose_name="واحد"
+    )
     
-    # مقادیر محاسبه شده
-    waste_weight = models.FloatField(null=True, blank=True, verbose_name="وزن دور ریز")
-    net_weight = models.FloatField(null=True, blank=True, verbose_name="وزن خالص")
-    total_price = models.FloatField(null=True, blank=True, verbose_name="قیمت کل")
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="تاریخ ایجاد")
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='products', verbose_name='کاربر', null=True)
+    # Calculated values
+    waste_weight = models.FloatField(
+        null=True, 
+        blank=True, 
+        verbose_name="وزن دور ریز"
+    )
+    net_weight = models.FloatField(
+        null=True, 
+        blank=True, 
+        verbose_name="وزن خالص"
+    )
+    total_price = models.FloatField(
+        null=True, 
+        blank=True, 
+        verbose_name="قیمت کل"
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True, 
+        verbose_name="تاریخ ایجاد"
+    )
+    user = models.ForeignKey(
+        User, 
+        on_delete=models.CASCADE, 
+        related_name='products', 
+        verbose_name='کاربر', 
+        null=True
+    )
     
-    def save(self, *args, **kwargs):
-        # محاسبه وزن دور ریز بر اساس نسبت دور ریز نوع محصول
+    def save(self, *args, **kwargs) -> None:
+        """Calculate waste weight, net weight and total price before saving."""
+        # Calculate waste weight based on product type waste ratio
         waste_ratio = self.product_type.waste_ratio
         self.waste_weight = self.total_weight * waste_ratio
         
-        # محاسبه وزن خالص
+        # Calculate net weight
         self.net_weight = self.total_weight - self.waste_weight
         
-        # محاسبه قیمت کل با در نظر گرفتن دور ریز
-        # محاسبه قیمت بر اساس وزن کل
+        # Calculate total price considering waste
+        # Price based on total weight
         self.total_price = (self.price_per_kilo * self.total_weight) / 1000
         
-        # قیمت اضافی بابت دور ریز
-        # این بخش باعث می‌شود قیمت کل با توجه به دور ریز افزایش یابد
+        # Additional cost for waste
         waste_cost = (self.price_per_kilo * self.waste_weight) / 1000
         self.total_price += waste_cost
             
         super().save(*args, **kwargs)
     
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.product_type.name} - {self.total_weight} گرم - {self.created_at.strftime('%Y-%m-%d')}"
     
     class Meta:
@@ -103,26 +152,31 @@ class ProductInstance(models.Model):
         verbose_name_plural = "محصولات"
 
 class Recipe(models.Model):
-    """مدل برای ذخیره دستور غذا و محاسبه هزینه‌ها"""
+    """Model for storing recipes and calculating costs."""
     name = models.CharField(max_length=200, verbose_name="نام غذا")
     description = models.TextField(blank=True, null=True, verbose_name="توضیحات")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="تاریخ ایجاد")
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='recipes', verbose_name='کاربر')
+    user = models.ForeignKey(
+        User, 
+        on_delete=models.CASCADE, 
+        related_name='recipes', 
+        verbose_name='کاربر'
+    )
     
-    # قیمت محاسبه شده نهایی
+    # Calculated final price
     total_cost = models.FloatField(default=0, verbose_name="هزینه کل")
     selling_price = models.FloatField(blank=True, null=True, verbose_name="قیمت فروش")
     
-    def calculate_total_cost(self):
-        """محاسبه هزینه کل بر اساس مواد تشکیل‌دهنده"""
+    def calculate_total_cost(self) -> float:
+        """Calculate total cost based on ingredients."""
         total = 0
         for item in self.recipe_items.all():
-            # محاسبه قیمت هر ماده بر اساس مقدار و قیمت آن
+            # Calculate price of each ingredient based on quantity and price
             if item.product_instance.unit == ProductType.UNIT_GRAM:
-                # برای مواد وزنی (گرم)
+                # For weight-based items (grams)
                 item_cost = (item.product_instance.price_per_kilo * item.quantity) / 1000
             else:
-                # برای سایر واحدها (عدد، لیتر، متر)
+                # For other units (piece, liter, meter)
                 item_cost = item.product_instance.price_per_kilo * item.quantity
                 
             total += item_cost
@@ -131,19 +185,19 @@ class Recipe(models.Model):
         self.save()
         return total
     
-    def calculate_profit(self):
-        """محاسبه سود خالص"""
+    def calculate_profit(self) -> float:
+        """Calculate net profit."""
         if not self.selling_price:
             return 0
         return self.selling_price - self.total_cost
     
-    def calculate_profit_percentage(self):
-        """محاسبه درصد سود"""
+    def calculate_profit_percentage(self) -> float:
+        """Calculate profit percentage."""
         if not self.selling_price or self.total_cost == 0:
             return 0
         return (self.selling_price - self.total_cost) / self.total_cost * 100
     
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
     
     class Meta:
@@ -151,12 +205,21 @@ class Recipe(models.Model):
         verbose_name_plural = "دستورهای غذا"
 
 class RecipeItem(models.Model):
-    """مدل برای نگهداری مواد تشکیل‌دهنده یک دستور غذا"""
-    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name='recipe_items', verbose_name="دستور غذا")
-    product_instance = models.ForeignKey(ProductInstance, on_delete=models.CASCADE, verbose_name="ماده اولیه")
+    """Model for storing ingredients of a recipe."""
+    recipe = models.ForeignKey(
+        Recipe, 
+        on_delete=models.CASCADE, 
+        related_name='recipe_items', 
+        verbose_name="دستور غذا"
+    )
+    product_instance = models.ForeignKey(
+        ProductInstance, 
+        on_delete=models.CASCADE, 
+        verbose_name="ماده اولیه"
+    )
     quantity = models.FloatField(default=1, verbose_name="مقدار")
     
-    def __str__(self):
+    def __str__(self) -> str:
         unit_display = {
             'gram': 'گرم',
             'piece': 'عدد',

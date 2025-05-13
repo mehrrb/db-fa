@@ -2,34 +2,26 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.views.generic import ListView
 from django.contrib import messages
-from django import forms
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.utils.decorators import method_decorator
 from django.contrib.admin.views.decorators import staff_member_required
+from django.http import JsonResponse
+from typing import Dict, Any, Union
+
 from .models import ProductType, ProductInstance, Category, Recipe, RecipeItem
 from .forms import ProductForm, RecipeForm, RecipeItemForm
-from django.http import JsonResponse
 
-# فرم ایجاد محصول جدید
-class ProductForm(forms.ModelForm):
-    class Meta:
-        model = ProductInstance
-        fields = ['product_type', 'total_weight', 'unit', 'price_per_kilo']
-        
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['product_type'].widget.attrs.update({'class': 'form-control'})
-        self.fields['total_weight'].widget.attrs.update({'class': 'form-control'})
-        self.fields['unit'].widget.attrs.update({'class': 'form-control'})
-        self.fields['price_per_kilo'].widget.attrs.update({'class': 'form-control'})
 
 @login_required
-def product_list(request):
+def product_list(request) -> Union[redirect, render]:
+    """
+    View for listing and creating product instances.
+    """
     if request.method == 'POST':
         form = ProductForm(request.POST)
         if form.is_valid():
             product = form.save(commit=False)
-            product.user = request.user  # Associate the product with the current user
+            product.user = request.user
             product.save()
             return redirect('product_list')
     else:
@@ -48,15 +40,18 @@ def product_list(request):
     }
     return render(request, 'core/product_list.html', context)
 
+
 @method_decorator(staff_member_required, name='dispatch')
 class ProductTypeListView(ListView):
+    """View for listing product types (staff only)."""
     model = ProductType
     template_name = 'core/product_type_list.html'
     context_object_name = 'product_types'
 
-def get_product_type_unit(request):
+
+def get_product_type_unit(request) -> JsonResponse:
     """
-    AJAX view to return the unit for a given product type
+    AJAX view to return the unit for a given product type.
     """
     product_type_id = request.GET.get('id')
     if not product_type_id:
@@ -70,9 +65,12 @@ def get_product_type_unit(request):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
+
 @login_required
-def recipe_list(request):
-    """نمایش لیست دستورات غذایی کاربر"""
+def recipe_list(request) -> render:
+    """
+    View for displaying user's recipe list.
+    """
     recipes = Recipe.objects.filter(user=request.user).order_by('-created_at')
     
     context = {
@@ -80,9 +78,12 @@ def recipe_list(request):
     }
     return render(request, 'core/recipe_list.html', context)
 
+
 @login_required
-def recipe_create(request):
-    """ایجاد دستور غذای جدید"""
+def recipe_create(request) -> Union[redirect, render]:
+    """
+    View for creating a new recipe.
+    """
     if request.method == 'POST':
         form = RecipeForm(request.POST)
         if form.is_valid():
@@ -99,13 +100,16 @@ def recipe_create(request):
     }
     return render(request, 'core/recipe_form.html', context)
 
+
 @login_required
-def recipe_detail(request, recipe_id):
-    """نمایش جزئیات دستور غذا و مواد تشکیل‌دهنده آن"""
+def recipe_detail(request, recipe_id: int) -> Union[redirect, render]:
+    """
+    View for displaying recipe details and managing ingredients.
+    """
     recipe = get_object_or_404(Recipe, id=recipe_id, user=request.user)
     recipe_items = recipe.recipe_items.all()
     
-    # فرم اضافه کردن ماده تشکیل‌دهنده جدید
+    # Form for adding new ingredient
     if request.method == 'POST':
         form = RecipeItemForm(request.user, request.POST)
         if form.is_valid():
@@ -113,7 +117,7 @@ def recipe_detail(request, recipe_id):
             recipe_item.recipe = recipe
             recipe_item.save()
             
-            # به‌روزرسانی قیمت کل دستور غذا
+            # Update the total cost of the recipe
             recipe.calculate_total_cost()
             
             messages.success(request, "ماده اولیه با موفقیت اضافه شد.")
@@ -121,7 +125,7 @@ def recipe_detail(request, recipe_id):
     else:
         form = RecipeItemForm(request.user)
     
-    # محاسبه آمارها
+    # Calculate statistics
     profit = recipe.calculate_profit()
     profit_percentage = recipe.calculate_profit_percentage()
     
@@ -134,28 +138,34 @@ def recipe_detail(request, recipe_id):
     }
     return render(request, 'core/recipe_detail.html', context)
 
+
 @login_required
-def recipe_item_delete(request, item_id):
-    """حذف ماده تشکیل‌دهنده از دستور غذا"""
+def recipe_item_delete(request, item_id: int) -> redirect:
+    """
+    View for deleting a recipe ingredient.
+    """
     recipe_item = get_object_or_404(RecipeItem, id=item_id)
     recipe = recipe_item.recipe
     
-    # بررسی مالکیت
+    # Check ownership
     if recipe.user != request.user:
         messages.error(request, "شما اجازه حذف این ماده را ندارید.")
         return redirect('recipe_list')
     
     recipe_item.delete()
     
-    # به‌روزرسانی قیمت کل دستور غذا
+    # Update the total cost of the recipe
     recipe.calculate_total_cost()
     
     messages.success(request, "ماده اولیه با موفقیت حذف شد.")
     return redirect('recipe_detail', recipe_id=recipe.id)
 
+
 @login_required
-def recipe_update(request, recipe_id):
-    """ویرایش اطلاعات دستور غذا"""
+def recipe_update(request, recipe_id: int) -> Union[redirect, render]:
+    """
+    View for updating recipe information.
+    """
     recipe = get_object_or_404(Recipe, id=recipe_id, user=request.user)
     
     if request.method == 'POST':
@@ -173,9 +183,12 @@ def recipe_update(request, recipe_id):
     }
     return render(request, 'core/recipe_form.html', context)
 
+
 @login_required
-def recipe_delete(request, recipe_id):
-    """حذف دستور غذا"""
+def recipe_delete(request, recipe_id: int) -> Union[redirect, render]:
+    """
+    View for deleting a recipe.
+    """
     recipe = get_object_or_404(Recipe, id=recipe_id, user=request.user)
     
     if request.method == 'POST':
