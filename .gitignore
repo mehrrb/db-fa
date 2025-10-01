@@ -1,6 +1,6 @@
 venv/
 __pycache__/
 test.xlsx
-.env/ 
+.env/
 .env
 migrations/
