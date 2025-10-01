@@ -1,8 +1,10 @@
 asgiref==3.8.1
 Django==5.2.1
-psycopg2-binary==2.9.10
-sqlparse==0.5.3
-djangorestframework==3.14.0
 django-filter==24.1
-markdown==3.5.1
+djangorestframework==3.14.0
 drf-yasg==1.21.7
+Markdown==3.5.1
+pandas==2.1.4
+psycopg2-binary==2.9.10
+python-decouple==3.8
+sqlparse==0.5.3
